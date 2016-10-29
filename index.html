@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recursive algorithm of the N-Queens</title>
+</head>
+<body>
+
+<script type="text/javascript">
+    // <!-- CHANGE THESE PARAMETERS' VALUE TO TEST -->
+    nQueensSolutions(8, 8).displaySolutions(0);
+
+    // ALGORITHM
+    /**
+     * Finds all the solutions to the N-Queens algorithm.
+     *
+     * @param number_of_queens number of queens to try to place in the chessboard
+     * @param number_of_lines_columns chessboard's ones
+     * @returns {nQueensSolutions} array containing all the solutions
+     */
+    function nQueensSolutions(number_of_queens, number_of_lines_columns) {
+        /*
+         NB
+         "Q" = "Queen" = presence of a queen in this square of the chessboard
+         "-" = "nothing" = no queen in this square of the chessboard
+         (used for both solutions displaying and finding)
+         */
+
+        var solutions = [];
+        var array_array_chessboard = [number_of_lines_columns]; // Represents the chessboard
+        for(var i = 0; i < number_of_lines_columns; i++) {
+            array_array_chessboard[i] =  new Array(number_of_lines_columns);
+            for(var j = 0; j < number_of_lines_columns; j++) {
+                array_array_chessboard[i][j] = "-"; // We initialize the chessboard with "-"
+            }
+        }
+
+        /**
+         * Uses HTML to display the found solutions, in the Web page
+         * @param int_display_number_of_solutions -1 : not displayed ; 0 : displayed at beginning ; 1 : displayed at end
+         */
+        this.displaySolutions = function(int_display_number_of_solutions) {
+            var body = document.body;
+            if(int_display_number_of_solutions == 0) {
+                body.innerHTML += solutions.length + " possible solutions.<br /><br />";
+            }
+            solutions.forEach((array_array_chessboard) => {
+                array_array_chessboard.forEach(function(array_chessboard) {
+                    array_chessboard.forEach((square) => {
+                        body.innerHTML += square; // New cell
+                    });
+                    body.innerHTML += "<br />"; // New line
+                });
+                body.innerHTML += "<br /><br />"; // New solution
+            });
+            if(int_display_number_of_solutions == 1) {
+                body.innerHTML += solutions.length + " possible solutions.";
+            }
+        };
+
+        /**
+         * RECURSIVE FUNCTION. If there are still queens to place, this function tries to place them. If not, it means a
+         * solution has been found : it's stored in an array (external to this function).
+         * If this function can't place a queen, nothing happens.
+         * Else, it places it and makes the recursive call.
+         * Each recursion level does this for each chessboard's square which are in the same line than the placed queen.
+         * @param number_of_left_queens how many remaining queens to place there are (if 0, it means a solution has been
+         * found)
+         * @param array_array_chessboard the chessboard
+         * @param pos_x last position (useful for recursive calls)
+         * @returns {Number} the return is not important
+         */
+        function placeQueen(number_of_left_queens, array_array_chessboard, pos_x) {
+            if (number_of_left_queens == 0) {
+                return solutions.push(JSON.parse(JSON.stringify(array_array_chessboard)));
+            }
+            for (var current_x = pos_x; current_x < number_of_lines_columns; current_x++) {
+                for (var current_y = 0; current_y < number_of_lines_columns; current_y++) {
+                    if (array_array_chessboard[current_x][current_y] == "-" && canBePlaced(array_array_chessboard, current_x, current_y)) {
+                        array_array_chessboard[current_x][current_y] = "Q";
+                        placeQueen(number_of_left_queens - 1, array_array_chessboard, current_x+1);
+                        array_array_chessboard[current_x][current_y] = "-";
+                    }
+                }
+            }
+        }
+
+        /**
+         * Can this queen be placed ?
+         * @param array_array_chessboard
+         * @param new_x
+         * @param new_y
+         * @returns {boolean}
+         */
+        function canBePlaced(array_array_chessboard, new_x, new_y) {
+            for(var i = 0; i < array_array_chessboard.length; i++) {
+                for(var z = 0; z < array_array_chessboard[i].length; z++) {
+                    if(array_array_chessboard[i][z] == "Q"
+                            && (
+                                    new_x == i || new_y == z                    // Horizontal and vertical checks
+                                    ||  Math.abs(new_x-i) == Math.abs(new_y-z)  // Diagonal check
+                            )
+                    ) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        placeQueen(number_of_queens, array_array_chessboard, 0);
+        return this;
+    }
+</script>
+
+</body>
+</html>
